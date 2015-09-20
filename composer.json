@@ -1,0 +1,27 @@
+{
+	"name": "dovedi",
+	"description": "Time-based One Time Password authentication for WordPress.",
+	"version": "0.0.1",
+	"type": "wordpress-plugin",
+	"keywords": [],
+	"homepage": "https://github.com/ericmann/dovedi",
+	"license": "GPLv2.0+",
+	"authors": [
+		{
+			"name": "Eric Mann",
+			"email": "eric@eamann.com",
+		"homepage": "https://eamann.com",
+			"role": "Developer"
+		}
+	],
+    "minimum-stability": "dev",
+	"require": {
+		"php": ">=5.4"
+	},
+    "require-dev": {
+	    "antecedent/patchwork": "1.2.*",
+        "phpunit/phpunit"     : "*@stable",
+	    "brianium/paratest"   : "dev-master",
+        "10up/wp_mock"        : "dev-master"
+    }
+}
