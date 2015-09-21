@@ -102,7 +102,7 @@ function user_options( $user ) {
 					$key = generate_key(); ?>
 					<button type="button" class="button button-secondary" onclick="jQuery('#totp-enable').toggle();"><?php esc_html_e( 'Enable', 'dovedi' ); ?></button>
 				<?php else : ?>
-					<button type="button" class="button button-secondary" onclick="if(confirm('<?php echo esc_js( __( 'Are you sure you want to disable two-step authentication?', 'dovedi' ) ); ?>')){jQuery('[name=totp-key]').val(''); jQuery(this).attr('disabled', 'disabled');}"><?php esc_html_e( 'Disable', 'dovedi' ); ?></button>
+					<button type="button" class="button button-secondary" onclick="if(confirm('<?php echo esc_js( __( 'Are you sure you want to disable two-step authentication?', 'dovedi' ) ); ?>')){jQuery('[name=totp-key]').val('');}"><?php esc_html_e( 'Disable', 'dovedi' ); ?></button>
 				<?php endif; ?>
 				<div id="totp-enable" style="display:none;">
 					<br />
@@ -132,6 +132,13 @@ function user_update( $user_id ) {
 		check_admin_referer( 'totp_options', '_nonce_totp_options' );
 
 		$current_key = get_user_meta( $user_id, '_totp_key', true );
+
+		// If the key was set, but the POST data isn't, delete it
+		if ( $current_key && empty( $_POST['totp-key'] ) ) {
+			delete_user_meta( $user_id, '_totp_key', $current_key );
+			return;
+		}
+
 		// If the key hasn't changed or is invalid, do nothing.
 		if ( ! isset( $_POST['totp-key'] ) || $current_key === $_POST['totp-key'] || ! preg_match( '/^[ABCDEFGHIJKLMNOPQRSTUVWXYZ234567]+$/', $_POST['totp-key'] ) ) {
 			return;
