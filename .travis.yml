@@ -17,7 +17,10 @@ matrix:
 before_script:
     - npm install
     - grunt
-    - composer install
+    - composer install --dev --no-interaction
+
+after_script:
+  - php vendor/bin/coveralls -v
 
 script:
-    - ./vendor/bin/phpunit
+    - ./vendor/bin/phpunit --coverage-clover build/logs/clover.xml

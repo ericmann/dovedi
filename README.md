@@ -1,4 +1,4 @@
-# Dovedi [![Build Status][travis-image]][travis-url]
+# Dovedi [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
 
 Time-based One Time Password authentication for WordPress.
 
@@ -66,3 +66,5 @@ First Release
 
 [travis-image]: https://travis-ci.org/ericmann/dovedi.svg?branch=master
 [travis-url]: https://travis-ci.org/ericmann/dovedi
+[coveralls-image]: https://coveralls.io/repos/ericmann/dovedi/badge.svg?branch=master&service=github
+[coveralls-url]: https://coveralls.io/github/ericmann/dovedi?branch=master
