@@ -13,6 +13,8 @@ matrix:
         - php: hhvm
 
 before_script:
+    - npm install
+    - grunt
     - composer install
 
 script:
