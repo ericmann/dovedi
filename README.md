@@ -1,4 +1,4 @@
-# Dovedi [![Build Status][travis-image]][travis-url] [![Coverage Status](coveralls-image)](coveralls-url)
+# Dovedi [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
 
 Time-based One Time Password authentication for WordPress.
 
