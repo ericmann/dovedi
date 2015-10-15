@@ -161,7 +161,7 @@ module.exports = function( grunt ) {
 
 	grunt.registerTask( 'js', ['jshint', 'concat', 'uglify'] );
 
-	grunt.registerTask( 'default', ['css', 'js', 'wp_readme_to_markdown' ] );
+	grunt.registerTask( 'default', ['css', 'js' ] );
 
 	grunt.registerTask( 'build', ['default', 'clean', 'copy', 'compress'] );
 
