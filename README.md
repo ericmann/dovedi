@@ -1,4 +1,4 @@
-# Dovedi [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
+# Dovedi [![Build Status][travis-image]][travis-url]
 
 Time-based One Time Password authentication for WordPress.
 
@@ -66,5 +66,3 @@ First Release
 
 [travis-image]: https://travis-ci.org/ericmann/dovedi.svg?branch=master
 [travis-url]: https://travis-ci.org/ericmann/dovedi
-[daviddm-image]: https://david-dm.org/ericmann/dovedi.svg?theme=shields.io
-[daviddm-url]: https://david-dm.org/ericmann/dovedi
