@@ -34,7 +34,7 @@ Yes! The [Google Authenticator App](https://play.google.com/store/apps/details?i
 
 = Does this work with iPhone? =
 
-Probably. But it hasn't been tested?
+Probably. But it hasn't been tested...
 
 == Screenshots ==
 
