@@ -119,6 +119,39 @@ class Core_Tests extends Base\TestCase {
 	}
 
 	/**
+	 * Make sure characters outside the charset are rejected
+	 */
+	public function test_base32_decode_rejects_invalid() {
+		$invalid = ['ABC0', 'ABC1', 'ABC8'];
+
+		foreach( $invalid as $test ) {
+			$thrown = false;
+			try {
+				$decoded = base32_decode( $test );
+			} catch ( \Exception $e ) {
+				$thrown = true;
+
+				$this->assertEquals( 'Invalid characters in the base32 string.', $e->getMessage() );
+			}
+
+			$this->assertTrue( $thrown );
+		}
+	}
+
+	/**
+	 * Make sure each valid character is converted to the correct binary equivalent
+	 */
+	public function test_base32_decode_returns_correct_data() {
+		// these strings are taken from the RFC
+		$this->assertEquals( 'f',      base32_decode( 'MY' ) );
+		$this->assertEquals( 'fo',     base32_decode( 'MZXQ' ) );
+		$this->assertEquals( 'foo',    base32_decode( 'MZXW6' ) );
+		$this->assertEquals( 'foob',   base32_decode( 'MZXW6YQ' ) );
+		$this->assertEquals( 'fooba',  base32_decode( 'MZXW6YTB' ) );
+		$this->assertEquals( 'foobar', base32_decode( 'MZXW6YTBOI' ) );
+	}
+
+	/**
 	 * Test absolute value sorting algorithm
 	 */
 	public function test_absort() {
