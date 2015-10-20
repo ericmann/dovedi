@@ -46,6 +46,9 @@ Screenshots
 Changelog
 ----------
 
+### 1.0.0 ###
+* Refactor for testability (97% coverage!)
+
 ### 0.1.0 ###
 * First release
 
