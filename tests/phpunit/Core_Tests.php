@@ -14,6 +14,7 @@ namespace TenUp\Dovedi\Core;
  */
 
 use TenUp\Dovedi as Base;
+use WP_Mock as M;
 
 class Core_Tests extends Base\TestCase {
 
@@ -162,8 +163,25 @@ class Core_Tests extends Base\TestCase {
 		$this->markTestIncomplete();
 	}
 
+	/**
+	 * Test QR code URL generation
+	 */
 	public function test_get_qr_code() {
-		$this->markTestIncomplete();
+		$site = 'Test Site';
+		$user = 'jeremiahjohnson';
+		$key = '123456789abcdef';
+
+		M::wpFunction( 'sanitize_title', [
+			'args'    => [ 'Test Site' ],
+			'return' => 'test-site',
+			'times'   => 1,
+		] );
+
+		$url = get_qr_code( $site, $user, $key );
+
+		$this->assertEquals( 'https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl=otpauth%3A%2F%2Ftotp%2Ftest-site%3Ajeremiahjohnson%3Fsecret%3D123456789abcdef%26issuer%3DTest%2BSite', $url );
+
+		$this->assertConditionsMet();
 	}
 
 	public function test_is_valid_authcode() {
