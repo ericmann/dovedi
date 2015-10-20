@@ -272,10 +272,7 @@ function validate_totp() {
 
 	delete_login_nonce( $user->ID );
 
-	$rememberme = false;
-	if ( isset( $_REQUEST['rememberme'] ) && $_REQUEST['rememberme'] ) {
-		$rememberme = true;
-	}
+	$rememberme = isset( $_REQUEST['rememberme'] ) && $_REQUEST['rememberme'];
 
 	wp_set_auth_cookie( $user->ID, $rememberme );
 

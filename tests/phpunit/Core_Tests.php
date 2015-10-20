@@ -248,8 +248,229 @@ class Core_Tests extends Base\TestCase {
 		$this->markTestIncomplete();
 	}
 
-	public function test_validate_totp() {
-		$this->markTestIncomplete();
+	/**
+	 * If no auth is set, the function should return before it gets user info.
+	 */
+	public function test_validate_totp_no_auth() {
+		// Logic should return before it gets there
+		M::wpFunction( 'get_userdata', [ 'times' => 0 ] );
+
+		validate_totp();
+
+		$this->assertConditionsMet();
+	}
+
+	/**
+	 * If no user exists, the function should return before verifying the nonce.
+	 */
+	public function test_validate_totp_no_user() {
+		$_POST['wp-auth-id'] = 5;
+		$_POST['wp-auth-nonce'] = 'nonce';
+
+		// Logic should return before it gets there
+		M::wpFunction( __NAMESPACE__ . '\verify_login_nonce', [ 'times' => 0 ] );
+
+		M::wpFunction( 'get_userdata', [
+			'args'   => [ 5 ],
+			'times'  => 1,
+			'return' => null,
+		] );
+
+		validate_totp();
+
+		$this->assertConditionsMet();
+	}
+
+	/**
+	 * If the nonce is bad, redirect to home
+	 */
+	public function test_validate_totp_bad_nonce() {
+		$_POST['wp-auth-id'] = 5;
+		$_POST['wp-auth-nonce'] = 'nonce';
+
+		$user = new \stdClass;
+		$user->ID = 5;
+
+		M::wpFunction( 'get_userdata', [
+			'args'   => [ 5 ],
+			'times'  => 1,
+			'return' => $user,
+		] );
+
+		M::wpFunction( __NAMESPACE__ . '\verify_login_nonce', [
+			'args'   => [ 5, 'nonce'],
+			'times'  => 1,
+			'return' => false,
+		] );
+
+		M::wpFunction( 'get_bloginfo', [
+			'args'   => [ 'url' ],
+			'times'  => 1,
+			'return' => 'info',
+		] );
+		M::wpFunction( 'wp_safe_redirect', [
+			'args'   => [ 'info' ],
+			'times'  => 1,
+		] );
+
+		M::wpFunction( __NAMESPACE__ . '\safe_exit', [ 'times' => 1 ] );
+
+
+		validate_totp();
+
+		$this->assertConditionsMet();
+	}
+
+	/**
+	 * If the authentication is bad, redirect to home
+	 */
+	public function test_validate_totp_bad_auth() {
+		$_POST['wp-auth-id'] = 5;
+		$_POST['wp-auth-nonce'] = 'nonce';
+		$_REQUEST['redirect_to'] = 'redirect';
+
+		$user = new \stdClass;
+		$user->ID = 5;
+		$user->user_login = 'login';
+
+		M::wpFunction( 'get_userdata', [
+			'args'   => [ 5 ],
+			'times'  => 1,
+			'return' => $user,
+		] );
+
+		M::wpFunction( __NAMESPACE__ . '\verify_login_nonce', [
+			'args'   => [ 5, 'nonce' ],
+			'times'  => 1,
+			'return' => true,
+		] );
+
+		M::wpFunction( __NAMESPACE__ . '\validate_authentication', [
+			'args'   => [ $user ],
+			'times'  => 1,
+			'return' => false,
+		] );
+
+		M::wpFunction( __NAMESPACE__ . '\create_login_nonce', [
+			'args'   => [ 5 ],
+			'times'  => 1,
+			'return' => [ 'key' => 'key', 'nonce' => 'nonce' ],
+		] );
+
+		M::wpPassthruFunction( 'esc_html__' );
+
+		M::wpFunction( __NAMESPACE__ . '\login_html', [
+			'args'   => [ $user, 'key', 'redirect', '*' ],
+			'times'  => 1,
+		] );
+
+		M::wpFunction( __NAMESPACE__ . '\safe_exit', [ 'times' => 1 ] );
+
+
+		validate_totp();
+
+		$this->assertConditionsMet();
+	}
+
+	/**
+	 * If the authentication is bad, and the nonce fails, die
+	 */
+	public function test_validate_totp_bad_auth_and_nonce() {
+		$_POST['wp-auth-id'] = 5;
+		$_POST['wp-auth-nonce'] = 'nonce';
+		$_REQUEST['redirect_to'] = 'redirect';
+
+		$user = new \stdClass;
+		$user->ID = 5;
+		$user->user_login = 'login';
+
+		M::wpFunction( 'get_userdata', [
+			'args'   => [ 5 ],
+			'times'  => 1,
+			'return' => $user,
+		] );
+
+		M::wpFunction( __NAMESPACE__ . '\verify_login_nonce', [
+			'args'   => [ 5, 'nonce' ],
+			'times'  => 1,
+			'return' => true,
+		] );
+
+		M::wpFunction( __NAMESPACE__ . '\validate_authentication', [
+			'args'   => [ $user ],
+			'times'  => 1,
+			'return' => false,
+		] );
+
+		M::wpFunction( __NAMESPACE__ . '\create_login_nonce', [
+			'args'   => [ 5 ],
+			'times'  => 1,
+			'return' => false,
+		] );
+
+		M::wpFunction( __NAMESPACE__ . '\login_html', [ 'times'  => 0 ] );
+
+		M::wpFunction( __NAMESPACE__ . '\safe_exit', [ 'times' => 0 ] );
+
+
+		validate_totp();
+
+		$this->assertConditionsMet();
+	}
+
+	/**
+	 * If everything is good, proceed!
+	 */
+	public function test_validate_totp_success() {
+		$_POST['wp-auth-id'] = 5;
+		$_POST['wp-auth-nonce'] = 'nonce';
+		$_REQUEST['redirect_to'] = 'redirect';
+
+		$user = new \stdClass;
+		$user->ID = 5;
+		$user->user_login = 'login';
+
+		M::wpFunction( 'get_userdata', [
+			'args'   => [ 5 ],
+			'times'  => 1,
+			'return' => $user,
+		] );
+
+		M::wpFunction( __NAMESPACE__ . '\verify_login_nonce', [
+			'args'   => [ 5, 'nonce' ],
+			'times'  => 1,
+			'return' => true,
+		] );
+
+		M::wpFunction( __NAMESPACE__ . '\validate_authentication', [
+			'args'   => [ $user ],
+			'times'  => 1,
+			'return' => true,
+		] );
+
+		M::wpFunction( __NAMESPACE__ . '\delete_login_nonce', [
+			'args'   => [ 5 ],
+			'times'  => 1,
+		] );
+
+		M::wpFunction( 'wp_set_auth_cookie', [
+			'args'  => [ 5, false ],
+			'times' => 1,
+		] );
+
+		M::wpFunction( 'wp_safe_redirect', [
+			'args'  => [ 'redirect' ],
+			'times' => 1,
+		] );
+
+		M::wpFunction( __NAMESPACE__ . '\login_html', [ 'times'  => 0 ] );
+
+		M::wpFunction( __NAMESPACE__ . '\safe_exit', [ 'times' => 1 ] );
+
+
+		validate_totp();
+
+		$this->assertConditionsMet();
 	}
 
 	/**
