@@ -128,10 +128,6 @@ class Core_Tests extends Base\TestCase {
 		// Verify
 	}
 
-	public function test_user_options() {
-		$this->markTestIncomplete();
-	}
-
 	/**
 	 * If the user submission is blank, delete their stored key
 	 */
@@ -284,12 +280,60 @@ class Core_Tests extends Base\TestCase {
 		$this->assertConditionsMet();
 	}
 
-	public function test_show_two_factor_login() {
-		$this->markTestIncomplete();
+	/**
+	 * Ensure a user is grabbed from the session if none is passed explicitly.
+	 */
+	public function test_show_two_factor_login_no_user() {
+		M::wpFunction( 'login_header' );
+
+		$user = new \stdClass;
+		$user->ID = 17;
+
+		M::wpFunction( 'wp_get_current_user', [
+			'times'  => 1,
+			'return' => $user,
+		] );
+
+		M::wpFunction( __NAMESPACE__ . '\create_login_nonce', [
+			'args'   => [ 17 ],
+			'times'  => 1,
+			'return' => false,
+		] );
+
+		M::wpPassthruFunction( 'esc_html__' );
+
+		M::wpFunction( __NAMESPACE__ . '\safe_exit', [ 'times' => 1 ] );
+
+		show_two_factor_login( null );
+
+		$this->assertConditionsMet();
 	}
 
-	public function test_login_html() {
-		$this->markTestIncomplete();
+	/**
+	 * Show the user the login page
+	 */
+	public function test_show_two_factor_login_success() {
+		$_REQUEST['redirect_to'] = 'redirect';
+
+		M::wpFunction( 'login_header' );
+
+		$user = new \stdClass;
+		$user->ID = 17;
+
+		M::wpFunction( __NAMESPACE__ . '\create_login_nonce', [
+			'args'   => [ 17 ],
+			'times'  => 1,
+			'return' => [ 'key' => 'key' ],
+		] );
+
+		M::wpFunction( __NAMESPACE__ . '\login_html', [
+			'args'  => [ $user, 'key', 'redirect' ],
+			'times' => 1,
+		] );
+
+		show_two_factor_login( $user );
+
+		$this->assertConditionsMet();
 	}
 
 	/**

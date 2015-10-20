@@ -83,6 +83,8 @@ function deactivate() {
 /**
  * Show Two-Step Authentication Options
  *
+ * @codeCoverageIgnore
+ *
  * @param \WP_User $user
  */
 function user_options( $user ) {
@@ -187,7 +189,7 @@ function show_two_factor_login( $user ) {
 
 	$login_nonce = create_login_nonce( $user->ID );
 	if ( ! $login_nonce ) {
-		return safe_exit( esc_html__( 'Could not save login nonce.' ) );
+		return safe_exit( esc_html__( 'Could not save login nonce.', 'dovedi' ) );
 	}
 
 	$redirect_to = isset( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : $_SERVER['REQUEST_URI'];
@@ -197,6 +199,8 @@ function show_two_factor_login( $user ) {
 
 /**
  * Generates the html form for the second step of the authentication process.
+ *
+ * @codeCoverageIgnore
  *
  * @param \WP_User      $user WP_User object of the logged-in user.
  * @param string        $login_nonce A string nonce stored in usermeta.
