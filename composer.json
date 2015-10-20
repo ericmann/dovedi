@@ -1,9 +1,9 @@
 {
 	"name": "dovedi",
 	"description": "Time-based One Time Password authentication for WordPress.",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"type": "wordpress-plugin",
-	"keywords": [],
+	"keywords": ["2fa", "authentication", "login"],
 	"homepage": "https://github.com/ericmann/dovedi",
 	"license": "GPLv2.0+",
 	"authors": [
