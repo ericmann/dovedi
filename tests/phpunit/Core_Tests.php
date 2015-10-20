@@ -556,7 +556,7 @@ class Core_Tests extends Base\TestCase {
 			'return' => [ 'key' => 'valid' ],
 		] );
 
-		M::wpFunction( 'delete_login_nonce', [
+		M::wpFunction( __NAMESPACE__ . '\delete_login_nonce', [
 			'args'  => [ 13 ],
 			'times' => 1,
 		] );
@@ -564,6 +564,55 @@ class Core_Tests extends Base\TestCase {
 		$verify = verify_login_nonce( 13, 'invalid' );
 
 		$this->assertFalse( $verify );
+		$this->assertConditionsMet();
+	}
+
+	/**
+	 * An expired nonce should fail and delete the nonce.
+	 */
+	public function test_verify_login_nonce_expired() {
+		M::wpFunction( 'get_user_meta', [
+			'args'   => [ 13, '_totp_nonce', true ],
+			'times'  => 1,
+			'return' => [ 'key' => 'valid', 'expiration' => 14 ],
+		] );
+
+		// Hacky way to get time() to return a static timestamp
+		M::wpFunction( __NAMESPACE__ . '\time', [
+			'times'  => 1,
+			'return' => 20,
+		] );
+
+		M::wpFunction( __NAMESPACE__ . '\delete_login_nonce', [
+			'args'  => [ 13 ],
+			'times' => 1,
+		] );
+
+		$verify = verify_login_nonce( 13, 'valid' );
+
+		$this->assertFalse( $verify );
+		$this->assertConditionsMet();
+	}
+
+	/**
+	 * A valid nonce should return true
+	 */
+	public function test_verify_login_nonce_valid() {
+		M::wpFunction( 'get_user_meta', [
+			'args'   => [ 13, '_totp_nonce', true ],
+			'times'  => 1,
+			'return' => [ 'key' => 'valid', 'expiration' => 14 ],
+		] );
+
+		// Hacky way to get time() to return a static timestamp
+		M::wpFunction( __NAMESPACE__ . '\time', [
+			'times'  => 1,
+			'return' => 10,
+		] );
+
+		$verify = verify_login_nonce( 13, 'valid' );
+
+		$this->assertTrue( $verify );
 		$this->assertConditionsMet();
 	}
 
