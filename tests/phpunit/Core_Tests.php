@@ -530,6 +530,43 @@ class Core_Tests extends Base\TestCase {
 		$this->assertConditionsMet();
 	}
 
+	/**
+	 * If the login nonce doesn't exist, fail
+	 */
+	public function test_verify_login_nonce_no_meta() {
+		M::wpFunction( 'get_user_meta', [
+			'args'   => [ 13, '_totp_nonce', true ],
+			'times'  => 1,
+			'return' => false,
+		] );
+
+		$verify = verify_login_nonce( 13, 'nonce' );
+
+		$this->assertFalse( $verify );
+		$this->assertConditionsMet();
+	}
+
+	/**
+	 * An invalid nonce should fail and delete the nonce.
+	 */
+	public function test_verify_login_nonce_invalid() {
+		M::wpFunction( 'get_user_meta', [
+			'args'   => [ 13, '_totp_nonce', true ],
+			'times'  => 1,
+			'return' => [ 'key' => 'valid' ],
+		] );
+
+		M::wpFunction( 'delete_login_nonce', [
+			'args'  => [ 13 ],
+			'times' => 1,
+		] );
+
+		$verify = verify_login_nonce( 13, 'invalid' );
+
+		$this->assertFalse( $verify );
+		$this->assertConditionsMet();
+	}
+
 	public function test_authentication_page() {
 		$this->markTestIncomplete();
 	}
