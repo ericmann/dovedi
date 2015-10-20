@@ -15,8 +15,6 @@ matrix:
         - php: nightly
 
 before_script:
-    - npm install
-    - grunt
     - composer install --dev --no-interaction
 
 after_script:
