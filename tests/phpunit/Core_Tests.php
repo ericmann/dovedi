@@ -278,7 +278,21 @@ class Core_Tests extends Base\TestCase {
 	 * Ensure false is returned should user meta fail to save
 	 */
 	public function test_create_login_nonce_fail() {
-		$this->markTestIncomplete();
+		M::wpFunction( 'update_user_meta', [
+			'args'   => [ 1, '_totp_nonce', '*' ],
+			'times'  => 1,
+			'return' => false,
+		] );
+		M::wpFunction( 'wp_hash', [
+			'args'   => [ '*', 'nonce' ],
+			'times'  => 1,
+			'return' => 'hash'
+		] );
+
+		$nonce = create_login_nonce( 1 );
+
+		$this->assertFalse( $nonce );
+		$this->assertConditionsMet();
 	}
 
 	public function test_delete_login_nonce() {
