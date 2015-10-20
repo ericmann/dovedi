@@ -516,8 +516,18 @@ class Core_Tests extends Base\TestCase {
 		$this->assertConditionsMet();
 	}
 
+	/**
+	 * Ensure the login nonce is deleted.
+	 */
 	public function test_delete_login_nonce() {
-		$this->markTestIncomplete();
+		M::wpFunction( 'delete_user_meta', [
+			'args'  => [ 22, '_totp_nonce' ],
+			'times' => 1,
+		] );
+
+		delete_login_nonce( 22 );
+
+		$this->assertConditionsMet();
 	}
 
 	public function test_authentication_page() {
