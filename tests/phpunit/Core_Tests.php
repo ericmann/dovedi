@@ -262,8 +262,21 @@ class Core_Tests extends Base\TestCase {
 		$this->markTestIncomplete();
 	}
 
+	/**
+	 * Make sure the TOTP code is calculated for some specific keys the same way each time
+	 */
 	public function test_calc_totp() {
-		$this->markTestIncomplete();
+		// Overload `time()` with a namespaced version so we can avoid randomness.
+		M::wpFunction( __NAMESPACE__ . '\time', [ 'return' => 1445302841 ] );
+
+		$tests = [
+			'first'  => '383468',
+			'223ABc' => '544401',
+		];
+
+		foreach( $tests as $key => $totp ) {
+			$this->assertEquals( $totp, calc_totp( $key ) );
+		}
 	}
 
 	/**
