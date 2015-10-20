@@ -168,7 +168,7 @@ function wp_login( $user_login, $user ) {
 	wp_clear_auth_cookie();
 
 	show_two_factor_login( $user );
-	exit;
+	safe_exit();
 }
 
 /**
@@ -187,7 +187,7 @@ function show_two_factor_login( $user ) {
 
 	$login_nonce = create_login_nonce( $user->ID );
 	if ( ! $login_nonce ) {
-		wp_die( esc_html__( 'Could not save login nonce.' ) );
+		return safe_exit( esc_html__( 'Could not save login nonce.' ) );
 	}
 
 	$redirect_to = isset( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : $_SERVER['REQUEST_URI'];
@@ -255,7 +255,7 @@ function validate_totp() {
 	$nonce = $_POST['wp-auth-nonce'];
 	if ( true !== verify_login_nonce( $user->ID, $nonce ) ) {
 		wp_safe_redirect( get_bloginfo( 'url' ) );
-		exit;
+		return safe_exit();
 	}
 
 	if ( true !== validate_authentication( $user ) ) {
@@ -267,7 +267,7 @@ function validate_totp() {
 		}
 
 		login_html( $user, $login_nonce['key'], $_REQUEST['redirect_to'], esc_html__( 'ERROR: Invalid verification code.', 'dovedi' ) );
-		exit;
+		return safe_exit();
 	}
 
 	delete_login_nonce( $user->ID );
@@ -282,7 +282,7 @@ function validate_totp() {
 	$redirect_to = apply_filters( 'login_redirect', $_REQUEST['redirect_to'], $_REQUEST['redirect_to'], $user );
 	wp_safe_redirect( $redirect_to );
 
-	exit;
+	safe_exit();
 }
 
 /**
@@ -562,8 +562,10 @@ function abssort( $a, $b ) {
  * If you need to kill script execution with no output (e.g. when redirecting),
  * use this function. Your functions should never be calling die() or exit()
  * directly, as this makes them extremely difficult to test.
+ *
+ * @param string [$message] Message to pass on to wp_die
  */
-function safe_exit() {
+function safe_exit( $message = '' ) {
 	$die_handler = function () {
 		return function () {
 			die;
@@ -572,5 +574,5 @@ function safe_exit() {
 	add_filter( 'wp_die_ajax_handler', $die_handler );
 	add_filter( 'wp_die_xmlrpc_handler', $die_handler );
 	add_filter( 'wp_die_handler', $die_handler );
-	wp_die();
+	wp_die( $message );
 }
