@@ -388,7 +388,7 @@ function generate_key( $bitsize = 128 ) {
 
 	if ( 8 > $bitsize || 0 !== $bitsize % 8 ) {
 		// @TODO: handle this case.
-		wp_die( -1 );
+		return safe_exit();
 	}
 
 	$s 	= '';
@@ -554,4 +554,23 @@ function abssort( $a, $b ) {
 		return 0;
 	}
 	return ($a < $b) ? -1 : 1;
+}
+
+/**
+ * A safe exit handler that will keep our code testable
+ *
+ * If you need to kill script execution with no output (e.g. when redirecting),
+ * use this function. Your functions should never be calling die() or exit()
+ * directly, as this makes them extremely difficult to test.
+ */
+function safe_exit() {
+	$die_handler = function () {
+		return function () {
+			die;
+		};
+	};
+	add_filter( 'wp_die_ajax_handler', $die_handler );
+	add_filter( 'wp_die_xmlrpc_handler', $die_handler );
+	add_filter( 'wp_die_handler', $die_handler );
+	wp_die();
 }

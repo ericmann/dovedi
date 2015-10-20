@@ -159,8 +159,22 @@ class Core_Tests extends Base\TestCase {
 		$this->markTestIncomplete();
 	}
 
-	public function test_generate_key() {
-		$this->markTestIncomplete();
+	/**
+	 * Make sure `wp_die()` is invoked if the key generation parameters are invalid.
+	 */
+	public function test_generate_key_dies_with_invalid() {
+		M::wpFunction( __NAMESPACE__ . '\safe_exit', array(
+			'times'  => 2,
+		) );
+
+		generate_key( 7 );  // Too small!
+		generate_key( 10 ); // Not a multiple of 8!
+
+		$this->assertConditionsMet();
+	}
+
+	public function test_generate_key_generats_valid_key() {
+
 	}
 
 	/**
@@ -250,5 +264,23 @@ class Core_Tests extends Base\TestCase {
 		$this->assertEquals( 0, abssort( 3, 3 ) );
 		$this->assertEquals( 0, abssort( -6, 6 ) );
 
+	}
+
+	/**
+	 * Ensure the safe exit function adds the appropriate filters and
+	 * invokes `wp_die()` in the end.
+	 */
+	public function test_safe_exit() {
+		M::wpFunction( 'wp_die', [ 'times' => 1 ] );
+
+		$handler = function() { return function() { die; }; };
+
+		M::expectFilterAdded( 'wp_die_ajax_handler', $handler );
+		M::expectFilterAdded( 'wp_die_xmlrpc_handler', $handler );
+		M::expectFilterAdded( 'wp_die_handler', $handler );
+
+		safe_exit();
+
+		$this->assertConditionsMet();
 	}
 }
