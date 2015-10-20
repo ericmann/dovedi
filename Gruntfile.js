@@ -62,6 +62,24 @@ module.exports = function( grunt ) {
 				colors: true,
 				testSuffix: 'Tests.php'
 			}
+		},
+		makepot: {
+			target: {
+				options: {
+					cwd: '',
+					domainPath: 'languages',
+					mainFile: 'dovedi.php',
+					potFilename: 'dovedi.pot',
+					potHeaders: {
+						poedit: true,
+						'x-poedit-keywordslist': true
+					},
+					processPot: null,
+					type: 'wp-plugin',
+					updateTimestamp: true,
+					updatePoFiles: false
+				}
+			}
 		}
 	} );
 
