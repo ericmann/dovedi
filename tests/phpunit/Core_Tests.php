@@ -258,8 +258,36 @@ class Core_Tests extends Base\TestCase {
 		$this->assertConditionsMet();
 	}
 
-	public function test_is_valid_authcode() {
-		$this->markTestIncomplete();
+	/**
+	 * A valid authcode should return true and return in < 9 ticks
+	 */
+	public function test_is_valid_authcode_if_valid() {
+		M::wpFunction( __NAMESPACE__ . '\calc_totp', [
+			'args'            => [ 'apple', '*' ],
+			'times'           => 4,
+			'return_in_order' => [ '1234', '1234', '1234', '2345' ],
+		] );
+
+		$valid = is_valid_authcode( 'apple', '2345' );
+
+		$this->assertTrue( $valid );
+		$this->assertConditionsMet();
+	}
+
+	/**
+	 * An invalid authcode will return false and use all 9 ticks
+	 */
+	public function test_is_valid_authcode_if_invalid() {
+		M::wpFunction( __NAMESPACE__ . '\calc_totp', [
+			'args'            => [ 'apple', '*' ],
+			'times'           => 9,
+			'return_in_order' => [ '1234', '1234', '1234', '1234', '1234', '1234', '1234', '1234', '1234' ],
+		] );
+
+		$valid = is_valid_authcode( 'apple', '2345' );
+
+		$this->assertFalse( $valid );
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -277,6 +305,8 @@ class Core_Tests extends Base\TestCase {
 		foreach( $tests as $key => $totp ) {
 			$this->assertEquals( $totp, calc_totp( $key ) );
 		}
+
+		$this->assertConditionsMet();
 	}
 
 	/**
