@@ -124,8 +124,108 @@ class Core_Tests extends Base\TestCase {
 		$this->markTestIncomplete();
 	}
 
-	public function test_user_update() {
-		$this->markTestIncomplete();
+	/**
+	 * If the user submission is blank, delete their stored key
+	 */
+	public function test_user_update_deletes_key() {
+		$_POST['_nonce_totp_options'] = 'totp';
+		$_POST['totp-key'] = '';
+		M::wpFunction( 'check_admin_referer', [
+			'args'  => [ 'totp_options', '_nonce_totp_options' ],
+			'times' => 1,
+		] );
+
+		M::wpFunction( 'get_user_meta', [
+			'args'   => [ 1, '_totp_key', true ],
+			'times'  => 1,
+			'return' => 'password',
+		] );
+
+		M::wpFunction( 'delete_user_meta', [
+			'args'  => [ 1, '_totp_key', 'password' ],
+			'times' => 1,
+		] );
+
+		// Act
+		user_update( 1 );
+
+		// Verify
+		$this->assertConditionsMet();
+	}
+
+	/**
+	 * If the user submission matches their previous key (or is invalid), don't do anything
+	 */
+	public function test_user_update_ignores_key() {
+		$_POST['_nonce_totp_options'] = 'totp';
+		$_POST['totp-key'] = '';
+		M::wpFunction( 'check_admin_referer', [
+			'args'  => [ 'totp_options', '_nonce_totp_options' ],
+			'times' => 3,
+		] );
+
+		M::wpFunction( 'get_user_meta', [
+			'args'            => [ 1, '_totp_key', true ],
+			'times'           => 3,
+			'return_in_order' => [ false, 'password', 'password' ],
+		] );
+
+		// These should not be called in this case. Ever
+		M::wpFunction( 'delete_user_meta', [ 'times' => 0 ] );
+		M::wpFunction( 'update_user_meta', [ 'times' => 0 ] );
+
+		// No existing key, no key POSTed
+		user_update( 1 );
+
+		// POSTed key same as existing key
+		$_POST['totp-key'] = 'password';
+		user_update( 1 );
+
+		// POSTed key is invalid
+		$_POST['totp-key'] = '0000';
+		user_update( 1 );
+
+		// Verify
+		$this->assertConditionsMet();
+	}
+
+	/**
+	 * If the user submits a new key, update the database
+	 */
+	public function test_user_update_updates_key() {
+		$_POST['_nonce_totp_options'] = 'totp';
+		$_POST['totp-key'] = 'NEW';
+		$_POST['totp-authcode'] = 'newpassword';
+		M::wpFunction( 'check_admin_referer', [
+			'args'  => [ 'totp_options', '_nonce_totp_options' ],
+			'times' => 1,
+		] );
+
+		M::wpFunction( 'get_user_meta', [
+			'args'   => [ 1, '_totp_key', true ],
+			'times'  => 1,
+			'return' => 'password',
+		] );
+
+		M::wpFunction( __NAMESPACE__ . '\is_valid_authcode', [
+			'args'   => [ 'NEW', 'newpassword' ],
+			'times'  => 1,
+			'return' => true,
+		] );
+
+		M::wpFunction( 'update_user_meta', [
+			'args'  => [ 1, '_totp_key', 'NEW' ],
+			'times' => 1,
+		] );
+
+		// Should never be called
+		M::wpFunction( 'delete_user_meta', [ 'times' => 0 ] );
+
+		// Act
+		user_update( 1 );
+
+		// Verify
+		$this->assertConditionsMet();
 	}
 
 	public function test_wp_login() {
