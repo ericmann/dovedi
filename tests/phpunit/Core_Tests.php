@@ -236,8 +236,52 @@ class Core_Tests extends Base\TestCase {
 		$this->assertConditionsMet();
 	}
 
-	public function test_wp_login() {
-		$this->markTestIncomplete();
+	/**
+	 * Make sure the login page returns if no key is set for the user
+	 */
+	public function test_wp_login_no_key() {
+		M::wpFunction( 'get_user_meta', [
+			'args'   => [ 3, '_totp_key', true ],
+			'times'  => 1,
+			'return' => '',
+		] );
+
+		// We should never get this far.
+		M::wpFunction( 'wp_clear_auth_cookie', [ 'times' => 0 ] );
+
+		$user = new \stdClass;
+		$user->ID = 3;
+
+		wp_login( 'login', $user );
+
+		$this->assertConditionsMet();
+	}
+
+	/**
+	 * If the key is set, show the custom login and exit!
+	 */
+	public function test_wp_login_success() {
+		M::wpFunction( 'get_user_meta', [
+			'args'   => [ 3, '_totp_key', true ],
+			'times'  => 1,
+			'return' => 'key',
+		] );
+
+		M::wpFunction( 'wp_clear_auth_cookie', [ 'times' => 1 ] );
+
+		$user = new \stdClass;
+		$user->ID = 3;
+
+		M::wpFunction( __NAMESPACE__ . '\show_two_factor_login', [
+			'args'  => [ $user ],
+			'times' => 1,
+		] );
+
+		M::wpFunction( __NAMESPACE__ . '\safe_exit', [ 'times' => 1 ] );
+
+		wp_login( 'login', $user );
+
+		$this->assertConditionsMet();
 	}
 
 	public function test_show_two_factor_login() {
@@ -614,10 +658,6 @@ class Core_Tests extends Base\TestCase {
 
 		$this->assertTrue( $verify );
 		$this->assertConditionsMet();
-	}
-
-	public function test_authentication_page() {
-		$this->markTestIncomplete();
 	}
 
 	/**

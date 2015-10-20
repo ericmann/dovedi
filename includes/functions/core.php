@@ -338,6 +338,8 @@ function verify_login_nonce( $user_id, $nonce ) {
 /**
  * Prints the form that prompts the user to authenticate.
  *
+ * @codeCoverageIgnore
+ *
  * @param \WP_User $user WP_User object of the logged-in user.
  */
 function authentication_page( $user ) {
