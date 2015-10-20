@@ -23,6 +23,14 @@ class Core_Tests extends Base\TestCase {
 		'functions/core.php'
 	];
 
+	public function setUp() {
+		if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
+			define( 'HOUR_IN_SECONDS', 60 * 60 );
+		}
+
+		parent::setUp();
+	}
+
 	/** 
 	 * Test load method.
 	 */
@@ -244,7 +252,32 @@ class Core_Tests extends Base\TestCase {
 		$this->markTestIncomplete();
 	}
 
+	/**
+	 * Make sure a random nonce is created for the user
+	 */
 	public function test_create_login_nonce() {
+		M::wpFunction( 'update_user_meta', [
+			'args'   => [ 1, '_totp_nonce', '*' ],
+			'times'  => 1,
+			'return' => true,
+		] );
+		M::wpFunction( 'wp_hash', [
+			'args'   => [ '*', 'nonce' ],
+			'times'  => 1,
+			'return' => 'hash'
+		] );
+
+		$nonce = create_login_nonce( 1 );
+
+		$this->assertArrayHasKey( 'key', $nonce );
+		$this->assertArrayHasKey( 'expiration', $nonce );
+		$this->assertConditionsMet();
+	}
+
+	/**
+	 * Ensure false is returned should user meta fail to save
+	 */
+	public function test_create_login_nonce_fail() {
 		$this->markTestIncomplete();
 	}
 
