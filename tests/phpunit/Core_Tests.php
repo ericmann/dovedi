@@ -118,6 +118,75 @@ class Core_Tests extends Base\TestCase {
 		// Verify
 	}
 
+	public function test_user_options() {
+		$this->markTestIncomplete();
+	}
+
+	public function test_user_update() {
+		$this->markTestIncomplete();
+	}
+
+	public function test_wp_login() {
+		$this->markTestIncomplete();
+	}
+
+	public function test_show_two_factor_login() {
+		$this->markTestIncomplete();
+	}
+
+	public function test_login_html() {
+		$this->markTestIncomplete();
+	}
+
+	public function test_validate_totp() {
+		$this->markTestIncomplete();
+	}
+
+	public function test_create_login_nonce() {
+		$this->markTestIncomplete();
+	}
+
+	public function test_delete_login_nonce() {
+		$this->markTestIncomplete();
+	}
+
+	public function test_authentication_page() {
+		$this->markTestIncomplete();
+	}
+
+	public function test_validate_authentication() {
+		$this->markTestIncomplete();
+	}
+
+	public function test_generate_key() {
+		$this->markTestIncomplete();
+	}
+
+	public function test_get_qr_code() {
+		$this->markTestIncomplete();
+	}
+
+	public function test_is_valid_authcode() {
+		$this->markTestIncomplete();
+	}
+
+	public function test_calc_totp() {
+		$this->markTestIncomplete();
+	}
+
+	/**
+	 * Ensure strings are packed into 64 bits as expected
+	 */
+	public function test_pack64() {
+		$this->assertEquals( "\000\000\000\000\000\000\000\001", pack64( 1 ) );
+		$this->assertEquals( "\000\000\000\000\000\000\000\002", pack64( 2 ) );
+		$this->assertEquals( "\000\000\000\000\000\000\000\003", pack64( 3 ) );
+		$this->assertEquals( "\000\000\000\000\000\000\000\004", pack64( 4 ) );
+		$this->assertEquals( "\000\000\000\000\000\000\000\005", pack64( 5 ) );
+		$this->assertEquals( "\000\000\000\000\000\000\000\006", pack64( 6 ) );
+		$this->assertEquals( "\000\000\000\000\000\000\000\007", pack64( 7 ) );
+	}
+
 	/**
 	 * Make sure characters outside the charset are rejected
 	 */
