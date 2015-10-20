@@ -13,6 +13,7 @@ namespace TenUp\Dovedi\Core;
  *   - https://github.com/10up/wp_mock
  */
 
+use Mockery\Mock;
 use TenUp\Dovedi as Base;
 use WP_Mock as M;
 
@@ -155,8 +156,50 @@ class Core_Tests extends Base\TestCase {
 		$this->markTestIncomplete();
 	}
 
+	/**
+	 * A valid authcode should be true
+	 */
 	public function test_validate_authentication() {
-		$this->markTestIncomplete();
+		M::wpFunction( 'get_user_meta', [
+			'args'   => [ 1, '_totp_key', true ],
+			'return' => '1234'
+		] );
+		M::wpFunction( __NAMESPACE__ . '\is_valid_authcode', [
+			'args'   => [ '1234', '5678' ],
+			'return' => true,
+		] );
+		$_REQUEST['authcode'] = '5678';
+
+		$user = new \stdClass;
+		$user->ID = 1;
+
+		$valid = validate_authentication( $user );
+
+		$this->assertTrue( $valid );
+		$this->assertConditionsMet();
+	}
+
+	/**
+	 * An invalid authcode should be false
+	 */
+	public function test_validate_authentication_invalid() {
+		M::wpFunction( 'get_user_meta', [
+			'args'   => [ 1, '_totp_key', true ],
+			'return' => '1234'
+		] );
+		M::wpFunction( __NAMESPACE__ . '\is_valid_authcode', [
+			'args'   => [ '1234', '5678' ],
+			'return' => false,
+		] );
+		$_REQUEST['authcode'] = '5678';
+
+		$user = new \stdClass;
+		$user->ID = 1;
+
+		$valid = validate_authentication( $user );
+
+		$this->assertFalse( $valid );
+		$this->assertConditionsMet();
 	}
 
 	/**
@@ -173,8 +216,25 @@ class Core_Tests extends Base\TestCase {
 		$this->assertConditionsMet();
 	}
 
-	public function test_generate_key_generats_valid_key() {
+	/**
+	 * Make sure the key is generated at the right length and with the right characters.
+	 */
+	public function test_generate_key_generates_valid_key() {
+		$base_32_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
+		// First test case
+		$str = generate_key( 8 );
+		$this->assertEquals( 1, strlen( $str ) );
+		foreach( str_split( $str ) as $char ) {
+			$this->assertContains( $char, $base_32_chars );
+		}
+
+		// Larger test case
+		$str = generate_key( 128 );
+		$this->assertEquals( 16, strlen( $str ) );
+		foreach( str_split( $str ) as $char ) {
+			$this->assertContains( $char, $base_32_chars );
+		}
 	}
 
 	/**
