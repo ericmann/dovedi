@@ -25,6 +25,7 @@ function setup() {
 	add_action( 'edit_user_profile',        $n( 'user_options' ) );
 	add_action( 'personal_options_update',  $n( 'user_update' ) );
 	add_action( 'edit_user_profile_update', $n( 'user_update' ) );
+	add_action( 'admin_notices',            $n( 'admin_notices' ) );
 
 	add_filter( 'manage_users_columns',       $n( 'user_column_totp' ) );
 	add_filter( 'manage_users_custom_column', $n( 'user_column_totp_row' ), 10, 3 );
@@ -627,4 +628,21 @@ function user_column_totp_row( $value, $column, $user_id ) {
 	}
 
 	return $value;
+}
+
+/**
+ * Display the admin nag if users haven't configured their 2FA settings yet.
+ *
+ * @codeCoverageIgnore
+ */
+function admin_notices() {
+	$user_id = get_current_user_id();
+	$key = get_user_meta( $user_id, '_totp_key', true );
+
+	if ( empty( $key ) ) : ?>
+		<div class="notice notice-warning">
+			<p><?php esc_html_e( 'You have not yet enabled a two-factor authentication device!', 'dovedi' ); ?></p>
+			<p><?php echo sprintf( esc_html__( 'You can add a new device from %syour user profile%s.', 'dovedi' ), '<a href="' . esc_url( get_edit_user_link() ) .'#totp">', '</a>' ); ?></p>
+		</div>
+	<?php endif;
 }

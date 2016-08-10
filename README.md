@@ -47,7 +47,7 @@ Changelog
 ----------
 
 ### 1.1.0 ###
-* TODO Nag users to set up 2FA
+* Nag users to set up 2FA
 * List users' setup status in the Users table
 * TODO Add backup codes when initializing an account
 

@@ -32,6 +32,7 @@ class Core_Tests extends Base\TestCase {
 		\WP_Mock::expectActionAdded( 'edit_user_profile',        'EAMann\Dovedi\Core\user_options' );
 		\WP_Mock::expectActionAdded( 'personal_options_update',  'EAMann\Dovedi\Core\user_update' );
 		\WP_Mock::expectActionAdded( 'edit_user_profile_update', 'EAMann\Dovedi\Core\user_update' );
+		\WP_Mock::expectActionAdded( 'admin_notices',            'EAMann\Dovedi\Core\admin_notices' );
 
 		\WP_Mock::expectFilterAdded( 'manage_users_columns',       'EAMann\Dovedi\Core\user_column_totp' );
 		\WP_Mock::expectFilterAdded( 'manage_users_custom_column', 'EAMann\Dovedi\Core\user_column_totp_row', 10, 3 );
