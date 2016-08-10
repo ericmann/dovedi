@@ -46,8 +46,8 @@ require_once DOVEDI_INC . 'functions/core.php';
 
 
 // Activation/Deactivation
-register_activation_hook( __FILE__, '\TenUp\Dovedi\Core\activate' );
-register_deactivation_hook( __FILE__, '\TenUp\Dovedi\Core\deactivate' );
+register_activation_hook(   __FILE__, '\EAMann\Dovedi\Core\activate' );
+register_deactivation_hook( __FILE__, '\EAMann\Dovedi\Core\deactivate' );
 
 // Bootstrap
-TenUp\Dovedi\Core\setup();
+EAMann\Dovedi\Core\setup();

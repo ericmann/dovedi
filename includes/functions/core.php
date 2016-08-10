@@ -1,5 +1,5 @@
 <?php
-namespace TenUp\Dovedi\Core;
+namespace EAMann\Dovedi\Core;
 
 /**
  * Default setup routine
@@ -478,11 +478,11 @@ function calc_totp( $key, $step_count = false, $digits = 6, $hash = 'sha1', $tim
 	$offset = ord( $hash[19] ) & 0xf;
 
 	$code = (
-		        ( ( ord( $hash[ $offset + 0 ] ) & 0x7f ) << 24 ) |
-		        ( ( ord( $hash[ $offset + 1 ] ) & 0xff ) << 16 ) |
-		        ( ( ord( $hash[ $offset + 2 ] ) & 0xff ) << 8 ) |
-		        ( ord( $hash[ $offset + 3 ] ) & 0xff )
-	        ) % pow( 10, $digits );
+		( ( ord( $hash[ $offset + 0 ] ) & 0x7f ) << 24 ) |
+		( ( ord( $hash[ $offset + 1 ] ) & 0xff ) << 16 ) |
+		( ( ord( $hash[ $offset + 2 ] ) & 0xff ) << 8 ) |
+		( ord( $hash[ $offset + 3 ] ) & 0xff )
+	) % pow( 10, $digits );
 
 	return str_pad( $code, $digits, '0', STR_PAD_LEFT );
 }
@@ -515,7 +515,6 @@ function pack64( $value ) {
  * @return string Binary representation of decoded string
  */
 function base32_decode( $base32_string ) {
-
 	$base32_string 	= strtoupper( $base32_string );
 
 	if ( ! preg_match( '/^[ABCDEFGHIJKLMNOPQRSTUVWXYZ234567]+$/', $base32_string, $match ) ) {

@@ -1,8 +1,8 @@
 <?php
-namespace TenUp\Dovedi\Core;
+namespace EAMann\Dovedi\Core;
 
 use Mockery\Mock;
-use TenUp\Dovedi as Base;
+use EAMann\Dovedi as Base;
 use WP_Mock as M;
 
 class Core_Tests extends Base\TestCase {
@@ -24,14 +24,14 @@ class Core_Tests extends Base\TestCase {
 	 */
 	public function test_setup() {
 		// Setup
-		\WP_Mock::expectActionAdded( 'init',                     'TenUp\Dovedi\Core\i18n' );
-		\WP_Mock::expectActionAdded( 'init',                     'TenUp\Dovedi\Core\init' );
-		\WP_Mock::expectActionAdded( 'wp_login',                 'TenUp\Dovedi\Core\wp_login', 10, 2 );
-		\WP_Mock::expectActionAdded( 'login_form_validate_totp', 'TenUp\Dovedi\Core\validate_totp' );
-		\WP_Mock::expectActionAdded( 'show_user_profile',        'TenUp\Dovedi\Core\user_options' );
-		\WP_Mock::expectActionAdded( 'edit_user_profile',        'TenUp\Dovedi\Core\user_options' );
-		\WP_Mock::expectActionAdded( 'personal_options_update',  'TenUp\Dovedi\Core\user_update' );
-		\WP_Mock::expectActionAdded( 'edit_user_profile_update', 'TenUp\Dovedi\Core\user_update' );
+		\WP_Mock::expectActionAdded( 'init',                     'EAMann\Dovedi\Core\i18n' );
+		\WP_Mock::expectActionAdded( 'init',                     'EAMann\Dovedi\Core\init' );
+		\WP_Mock::expectActionAdded( 'wp_login',                 'EAMann\Dovedi\Core\wp_login', 10, 2 );
+		\WP_Mock::expectActionAdded( 'login_form_validate_totp', 'EAMann\Dovedi\Core\validate_totp' );
+		\WP_Mock::expectActionAdded( 'show_user_profile',        'EAMann\Dovedi\Core\user_options' );
+		\WP_Mock::expectActionAdded( 'edit_user_profile',        'EAMann\Dovedi\Core\user_options' );
+		\WP_Mock::expectActionAdded( 'personal_options_update',  'EAMann\Dovedi\Core\user_update' );
+		\WP_Mock::expectActionAdded( 'edit_user_profile_update', 'EAMann\Dovedi\Core\user_update' );
 
 		\WP_Mock::expectAction( 'dovedi_loaded' );
 
