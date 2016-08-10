@@ -47,7 +47,6 @@ Probably. But it hasn't been tested...
 = 1.1.0 =
 * Nag users to set up 2FA
 * List users' setup status in the Users table
-* TODO Add backup codes when initializing an account
 
 = 1.0.0 =
 * Refactor for testability (97% coverage!)
