@@ -25,6 +25,9 @@ function setup() {
 	add_action( 'edit_user_profile',        $n( 'user_options' ) );
 	add_action( 'personal_options_update',  $n( 'user_update' ) );
 	add_action( 'edit_user_profile_update', $n( 'user_update' ) );
+
+	add_filter( 'manage_users_columns',       $n( 'user_column_totp' ) );
+	add_filter( 'manage_users_custom_column', $n( 'user_column_totp_row' ), 10, 3 );
 }
 
 /**
@@ -580,4 +583,48 @@ function safe_exit( $message = '' ) {
 	add_filter( 'wp_die_xmlrpc_handler', $die_handler );
 	add_filter( 'wp_die_handler', $die_handler );
 	wp_die( $message );
+}
+
+/**
+ * Add a custom column to the Users table.
+ *
+ * @param array $column Column title definitions
+ *
+ * @return array
+ */
+function user_column_totp( $column ) {
+	$column['totp_active num'] = __( '2FA Enabled', 'dovedi' );
+
+	return $column;
+}
+
+/**
+ * Print an indication of whether or not the user has enabled two-factor authentication.
+ *
+ * @param string $value   Literal string of the HTML we will print
+ * @param string $column  Label for the column in question.
+ * @param int    $user_id ID of the user for whom we're rendering data.
+ *
+ * @return string
+ */
+function user_column_totp_row( $value, $column, $user_id ) {
+	switch( $column ) {
+		case 'totp_active num':
+			$key = get_user_meta( $user_id, '_totp_key', true );
+
+			if ( empty( $key ) ) {
+				// Nothing is active. This is bad
+				$markup = '<span aria-hidden="true" class="dashicons dashicons-no"></span>';
+				$markup .= '<span class="screen-reader-text">' . esc_html__( 'Two-factor authentication is NOT enabled', 'dovedi' ) . '</span>';
+			} else {
+				// We're active. Hurray!
+				$markup = '<span aria-hidden="true" class="dashicons dashicons-yes"></span>';
+				$markup .= '<span class="screen-reader-text">' . esc_html__( 'Two-factor authentication is enabled', 'dovedi' ) . '</span>';
+			}
+
+			return $markup;
+			break;
+	}
+
+	return $value;
 }

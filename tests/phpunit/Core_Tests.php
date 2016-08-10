@@ -33,6 +33,9 @@ class Core_Tests extends Base\TestCase {
 		\WP_Mock::expectActionAdded( 'personal_options_update',  'EAMann\Dovedi\Core\user_update' );
 		\WP_Mock::expectActionAdded( 'edit_user_profile_update', 'EAMann\Dovedi\Core\user_update' );
 
+		\WP_Mock::expectFilterAdded( 'manage_users_columns',       'EAMann\Dovedi\Core\user_column_totp' );
+		\WP_Mock::expectFilterAdded( 'manage_users_custom_column', 'EAMann\Dovedi\Core\user_column_totp_row', 10, 3 );
+
 		\WP_Mock::expectAction( 'dovedi_loaded' );
 
 		// Act
@@ -830,6 +833,10 @@ class Core_Tests extends Base\TestCase {
 	 * Make sure the TOTP code is calculated for some specific keys the same way each time
 	 */
 	public function test_calc_totp() {
+		if ( PHP_INT_SIZE === 4 ) {
+			$this->markTestSkipped( 'calc_totp requires 64-bit PHP' );
+		}
+
 		// Overload `time()` with a namespaced version so we can avoid randomness.
 		M::wpFunction( __NAMESPACE__ . '\time', [ 'return' => 1445302841 ] );
 
@@ -849,6 +856,10 @@ class Core_Tests extends Base\TestCase {
 	 * Ensure strings are packed into 64 bits as expected
 	 */
 	public function test_pack64() {
+		if ( PHP_INT_SIZE === 4 ) {
+			$this->markTestSkipped( 'pack64 requires 64-bit PHP' );
+		}
+
 		$this->assertEquals( "\000\000\000\000\000\000\000\001", pack64( 1 ) );
 		$this->assertEquals( "\000\000\000\000\000\000\000\002", pack64( 2 ) );
 		$this->assertEquals( "\000\000\000\000\000\000\000\003", pack64( 3 ) );
@@ -921,5 +932,41 @@ class Core_Tests extends Base\TestCase {
 		safe_exit();
 
 		$this->assertConditionsMet();
+	}
+
+	public function test_user_column_totp() {
+		M::wpPassthruFunction( '__' );
+
+		$columns = [];
+
+		$filtered = user_column_totp( $columns );
+
+		$this->assertArrayHasKey( 'totp_active num', $filtered );
+	}
+
+	public function test_user_column_totp_row() {
+		M::wpPassthruFunction( 'esc_html__' );
+		M::wpFunction( 'get_user_meta', [
+			'args'   => [ 5, '_totp_key', true ],
+			'times'  => 1,
+			'return' => 'password',
+		] );
+		M::wpFunction( 'get_user_meta', [
+			'args'   => [ 10, '_totp_key', true ],
+			'times'  => 1,
+			'return' => false,
+		] );
+
+		$filtered = user_column_totp_row( 'unmodified', 'posts', 5 );
+
+		$this->assertEquals( 'unmodified', $filtered );
+
+		$filtered = user_column_totp_row( 'unmodified', 'totp_active num', 5 );
+
+		$this->assertNotEquals( 'unmodified', $filtered );
+
+		$filtered = user_column_totp_row( 'unmodified', 'totp_active num', 10 );
+
+		$this->assertNotEquals( 'unmodified', $filtered );
 	}
 }
