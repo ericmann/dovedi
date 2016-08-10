@@ -1,6 +1,6 @@
 <?php
 
-namespace TenUp\Dovedi;
+namespace EAMann\Dovedi;
 
 use PHPUnit_Framework_TestResult;
 use Text_Template;
