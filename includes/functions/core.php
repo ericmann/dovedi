@@ -98,7 +98,9 @@ function user_options( $user ) {
 
 	wp_nonce_field( 'totp_options', '_nonce_totp_options', false );
 	$key = get_user_meta( $user->ID, '_totp_key', true );
+	$enabled = get_user_meta( $user->ID, '_totp_enabled', true );
 	$site_name = get_bloginfo( 'name', 'display' );
+	if ( 'yes' !== $enabled ) $enabled = 'no';
 	?>
 	<table class="form-table">
 		<tr id="totp">
@@ -106,9 +108,9 @@ function user_options( $user ) {
 			<td>
 				<?php if ( false === $key || empty( $key ) ) :
 					$key = generate_key(); ?>
-					<button type="button" class="button button-secondary" onclick="jQuery('#totp-enable').toggle();"><?php esc_html_e( 'Enable', 'dovedi' ); ?></button>
+					<button type="button" class="button button-secondary" onclick="jQuery('#totp-enable').toggle();jQuery('[name=totp-on]').val('yes');"><?php esc_html_e( 'Enable', 'dovedi' ); ?></button>
 				<?php else : ?>
-					<button type="button" class="button button-secondary" onclick="if(confirm('<?php echo esc_js( __( 'Are you sure you want to disable two-step authentication?', 'dovedi' ) ); ?>')){jQuery('[name=totp-key]').val('');}"><?php esc_html_e( 'Disable', 'dovedi' ); ?></button>
+					<button type="button" class="button button-secondary" onclick="if(confirm('<?php echo esc_js( __( 'Are you sure you want to disable two-step authentication?', 'dovedi' ) ); ?>')){jQuery('[name=totp-key]').val('');jQuery('[name=totp-on]').val('no');}"><?php esc_html_e( 'Disable', 'dovedi' ); ?></button>
 				<?php endif; ?>
 				<div id="totp-enable" style="display:none;">
 					<br />
@@ -121,6 +123,7 @@ function user_options( $user ) {
 					<p>
 						<strong><label for="totp-authcode"><?php esc_html_e( 'Authentication Code:', 'dovedi' ); ?></label></strong>
 						<input type="hidden" name="totp-key" value="<?php echo esc_attr( $key ) ?>" />
+                        <input type="hidden" name="totp-on" value="<?php echo esc_attr( $enabled ) ?>" />
 						<input type="tel" name="totp-authcode" id="totp-authcode" class="input regular-text" value="" size="20" pattern="[0-9]*" />
 					</p>
 				</div>
@@ -137,14 +140,16 @@ function user_options( $user ) {
  * @param integer $user_id The user ID whose options are being updated.
  */
 function user_update( $user_id ) {
+
 	if ( isset( $_POST['_nonce_totp_options'] ) ) {
 		check_admin_referer( 'totp_options', '_nonce_totp_options' );
 
 		$current_key = get_user_meta( $user_id, '_totp_key', true );
 
 		// If the key was set, but the POST data isn't, delete it
-		if ( $current_key && empty( $_POST['totp-key'] ) ) {
-			delete_user_meta( $user_id, '_totp_key', $current_key );
+		if ( $current_key && empty( $_POST['totp-key'] ) || 'no' === $_POST['totp-on']) {
+		    delete_user_meta( $user_id, '_totp_enabled' );
+			delete_user_meta( $user_id, '_totp_key' );
 			return;
 		}
 
@@ -155,6 +160,7 @@ function user_update( $user_id ) {
 
 		if ( ! empty( $_POST['totp-authcode'] ) ) {
 			if ( is_valid_authcode( $_POST['totp-key'], $_POST['totp-authcode'] ) ) {
+			    update_user_meta( $user_id, '_totp_enabled', 'yes' );
 				update_user_meta( $user_id, '_totp_key', $_POST['totp-key'] );
 			}
 		}

@@ -46,6 +46,9 @@ Screenshots
 Changelog
 ----------
 
+### 1.1.1 ###
+* Fix a JS error that prevented disabling 2FA for users
+
 ### 1.1.0 ###
 * Nag users to set up 2FA
 * List users' setup status in the Users table
@@ -66,8 +69,8 @@ First Release
 **Donate link:**       https://eamann.com  
 **Tags:**              2fa, authentication, login  
 **Requires at least:** 4.3.1  
-**Tested up to:**      4.6.0
-**Stable tag:**        1.1.0
+**Tested up to:**      4.7.3
+**Stable tag:**        1.1.1
 **License:**           GPLv2 or later  
 **License URI:**       http://www.gnu.org/licenses/gpl-2.0.html  
 

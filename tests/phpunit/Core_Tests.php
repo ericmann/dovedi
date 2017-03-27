@@ -126,6 +126,7 @@ class Core_Tests extends Base\TestCase {
 	public function test_user_update_deletes_key() {
 		$_POST['_nonce_totp_options'] = 'totp';
 		$_POST['totp-key'] = '';
+		$_POST['totp-on'] = 'no';
 		M::wpFunction( 'check_admin_referer', [
 			'args'  => [ 'totp_options', '_nonce_totp_options' ],
 			'times' => 1,
@@ -138,9 +139,13 @@ class Core_Tests extends Base\TestCase {
 		] );
 
 		M::wpFunction( 'delete_user_meta', [
-			'args'  => [ 1, '_totp_key', 'password' ],
+			'args'  => [ 1, '_totp_key' ],
 			'times' => 1,
 		] );
+        M::wpFunction( 'delete_user_meta', [
+            'args'  => [ 1, '_totp_enabled' ],
+            'times' => 1,
+        ] );
 
 		// Act
 		user_update( 1 );
@@ -155,6 +160,7 @@ class Core_Tests extends Base\TestCase {
 	public function test_user_update_ignores_key() {
 		$_POST['_nonce_totp_options'] = 'totp';
 		$_POST['totp-key'] = '';
+		$_POST['totp-on'] = '';
 		M::wpFunction( 'check_admin_referer', [
 			'args'  => [ 'totp_options', '_nonce_totp_options' ],
 			'times' => 3,
@@ -175,10 +181,12 @@ class Core_Tests extends Base\TestCase {
 
 		// POSTed key same as existing key
 		$_POST['totp-key'] = 'password';
+        $_POST['totp-on'] = 'yes';
 		user_update( 1 );
 
 		// POSTed key is invalid
 		$_POST['totp-key'] = '0000';
+        $_POST['totp-on'] = 'yes';
 		user_update( 1 );
 
 		// Verify
@@ -192,6 +200,7 @@ class Core_Tests extends Base\TestCase {
 		$_POST['_nonce_totp_options'] = 'totp';
 		$_POST['totp-key'] = 'NEW';
 		$_POST['totp-authcode'] = 'newpassword';
+        $_POST['totp-on'] = 'yes';
 		M::wpFunction( 'check_admin_referer', [
 			'args'  => [ 'totp_options', '_nonce_totp_options' ],
 			'times' => 1,
@@ -213,6 +222,10 @@ class Core_Tests extends Base\TestCase {
 			'args'  => [ 1, '_totp_key', 'NEW' ],
 			'times' => 1,
 		] );
+        M::wpFunction( 'update_user_meta', [
+            'args'  => [ 1, '_totp_enabled', 'yes' ],
+            'times' => 1,
+        ] );
 
 		// Should never be called
 		M::wpFunction( 'delete_user_meta', [ 'times' => 0 ] );

@@ -3,7 +3,7 @@
  * Plugin Name: Dovedi
  * Plugin URI:  https://github.com/ericmann/dovedi
  * Description: Time-based One Time Password authentication for WordPress.
- * Version:     1.1.0
+ * Version:     1.1.1
  * Author:      Eric Mann
  * Author URI:  https://eamann.com
  * License:     GPLv2+
@@ -12,7 +12,7 @@
  */
 
 /**
- * Copyright (c) 2015-2016 Eric Mann (email : eric@eamann.com)
+ * Copyright (c) 2015-2017 Eric Mann (email : eric@eamann.com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2 or, at
@@ -36,7 +36,7 @@
  */
 
 // Useful global constants
-define( 'DOVEDI_VERSION', '1.1.0' );
+define( 'DOVEDI_VERSION', '1.1.1' );
 define( 'DOVEDI_URL',     plugin_dir_url( __FILE__ ) );
 define( 'DOVEDI_PATH',    dirname( __FILE__ ) . '/' );
 define( 'DOVEDI_INC',     DOVEDI_PATH . 'includes/' );
