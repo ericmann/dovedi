@@ -21,6 +21,7 @@ function setup() {
 
 	add_action( 'wp_login',                 $n( 'wp_login' ), 10, 2 );
 	add_action( 'login_form_validate_totp', $n( 'validate_totp' ) );
+    	add_action( 'dovedi_init',              $n( 'wp_user_profiles_support' ) );
 	add_action( 'show_user_profile',        $n( 'user_options' ) );
 	add_action( 'edit_user_profile',        $n( 'user_options' ) );
 	add_action( 'personal_options_update',  $n( 'user_update' ) );
@@ -60,6 +61,16 @@ function init() {
 }
 
 /**
+ * Support for the WP User Profiles plugin.
+ */
+function wp_user_profiles_support() {
+    if ( function_exists( '_wp_user_profiles' ) ) {
+        $page = get_wp_user_profiles_page();
+        add_action( "wp_user_profiles_add_{$page}_meta_boxes", __NAMESPACE__ . '\\user_options_meta_box', 10, 2 );
+    }
+}
+
+/**
  * Activate the plugin
  *
  * @uses init()
@@ -82,6 +93,24 @@ function activate() {
  */
 function deactivate() {
 
+}
+
+/**
+ * Add the meta boxes for this section.
+ *
+ * @param  string $type
+ * @param  \WP_User $user
+ */
+function user_options_meta_box( $type = '', $user = null ) {
+    add_meta_box(
+        'totp',
+        esc_attr__( 'Two-Step Authentication', 'dovedi' ),
+        __NAMESPACE__ . '\\user_options',
+        $type,
+        'normal',
+        'core',
+        $user
+    );
 }
 
 /**
@@ -645,10 +674,27 @@ function admin_notices() {
 	$user_id = get_current_user_id();
 	$key = get_user_meta( $user_id, '_totp_key', true );
 
+	if ( function_exists( 'wp_user_profiles_get_admin_area_url' ) ) {
+		$url = add_query_arg( [
+	    		'page' => get_wp_user_profiles_page(),
+		], wp_user_profiles_get_admin_area_url( $user_id ) );
+	} else {
+		$url = get_edit_user_link();
+	}
+
 	if ( empty( $key ) ) : ?>
 		<div class="notice notice-warning">
 			<p><?php esc_html_e( 'You have not yet enabled a two-factor authentication device!', 'dovedi' ); ?></p>
-			<p><?php echo sprintf( esc_html__( 'You can add a new device from %syour user profile%s.', 'dovedi' ), '<a href="' . esc_url( get_edit_user_link() ) .'#totp">', '</a>' ); ?></p>
+			<p><?php echo sprintf( esc_html__( 'You can add a new device from %syour user profile%s.', 'dovedi' ), '<a href="' . esc_url( $url ) .'#totp">', '</a>' ); ?></p>
 		</div>
 	<?php endif;
+}
+
+/**
+ * Get the WP Users Profiles page slug.
+ *
+ * @return string
+ */
+function get_wp_user_profiles_page() {
+    return apply_filters( 'totp_wp_user_profiles_page', 'account' );
 }
